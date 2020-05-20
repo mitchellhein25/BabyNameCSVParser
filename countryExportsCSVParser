@@ -1,0 +1,67 @@
+
+/**
+ * This program uses CSV files that contain countries and their exports and sorts through them.
+ This program uses the Duke Learn to Program Library to handle the CSV files.
+ * 
+ * @author (Mitchell Hein) 
+ * @Date (5/15/20)
+ */
+import edu.duke.*;
+import org.apache.commons.csv.*;
+public class CSVParserForExports {
+    public void tester () {
+        FileResource file = new FileResource();
+        //String fileS = file.toString();
+        CSVParser parser = file.getCSVParser();
+        countryInfo(parser, "Nauru");
+        parser = file.getCSVParser();
+        listExportersTwoProducts(parser, "cotton", "flowers");
+        parser = file.getCSVParser();
+        System.out.println(numberOfExporters(parser, "cocoa"));
+        parser = file.getCSVParser();
+        bigExporters(parser, "$999,999,999,999");
+    }
+    
+    public void bigExporters (CSVParser parser, String value) {
+        for (CSVRecord record : parser) {
+            String stringValue = record.get("Value (dollars)");
+            if (stringValue.length() >  value.length()) {
+                System.out.println(record.get("Country") + " " + stringValue);
+            }
+        }
+    }
+    
+    public void countryInfo (CSVParser parser, String country) {
+        for (CSVRecord record : parser) {
+            //System.out.println("Entered For Loop");
+            if (record.get("Country").contains(country) ) {
+                //System.out.println("Name get does work");
+                //System.out.println("NOT FOUND");
+                String exports = record.get("Exports");
+                String value = record.get("Value (dollars)");
+            System.out.println(country + ": " + exports + ": " + value);
+            }
+            
+        }
+    }
+    
+    public void listExportersTwoProducts (CSVParser parser, String exportItem1,
+                                            String exportItem2) {
+        for (CSVRecord record : parser) {
+            if (record.get("Exports").contains(exportItem1) &&
+                record.get("Exports").contains(exportItem2)) {
+                System.out.println(record.get("Country"));
+                }
+        }
+    }
+    
+    public int numberOfExporters (CSVParser parser, String exportItem) {
+        int total = 0;
+        for (CSVRecord record : parser){
+            if (record.get("Exports").contains(exportItem)) {
+                total++;
+            }
+        }
+        return total;
+    }
+}
