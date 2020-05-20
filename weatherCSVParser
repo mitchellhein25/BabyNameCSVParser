@@ -1,0 +1,121 @@
+
+/**
+ * This program uses the Duke Learn to Program library to parse through CSV files.
+ * This program uses CSV files that contain weather data and returns various values and calculations for that data.
+ 
+ * @author (Mitchell Hein) 
+ * @date (5/18/20)
+ */
+import edu.duke.*;
+import org.apache.commons.csv.*;
+import java.io.*;
+
+public class CSVParserLowestDataValues {
+    public CSVRecord getLowest (CSVRecord currentRow, CSVRecord lowestRow, String data) {
+        if (lowestRow == null) {
+                lowestRow = currentRow;
+            }
+            else {
+                double lowestRowDub = Double.parseDouble(lowestRow.get(data));
+                if (currentRow.get(data).equals("N/A")) {
+                    return lowestRow;
+                }
+                double currentRowDub = Double.parseDouble(currentRow.get(data));
+                if (lowestRowDub > currentRowDub &&
+                    !(currentRowDub < 0)) {
+                    lowestRow = currentRow;
+                }
+            }
+            return lowestRow;
+    }
+    
+    /*public CSVRecord coldestHourInFile (CSVParser parser) {
+        CSVRecord coldestRow = null;
+        for (CSVRecord currentRow : parser) {
+            coldestRow = getColdest(currentRow, coldestRow, "TemperatureF");
+        }
+        return coldestRow;
+    }*/
+    
+    public CSVRecord lowestDataInFile (CSVParser parser, String data) {
+        CSVRecord lowestRow = null;
+        for (CSVRecord currentRow : parser) {
+            lowestRow = getLowest(currentRow, lowestRow, data);
+        }
+        return lowestRow;
+    }
+    
+    public CSVRecord fileWithLowestData (String data) {
+        CSVRecord lowestFile = null;
+        DirectoryResource dr = new DirectoryResource();
+        for (File f : dr.selectedFiles()) {
+            FileResource fr = new FileResource(f);
+            CSVRecord lowestData = lowestDataInFile(fr.getCSVParser(), data);
+            lowestFile = getLowest(lowestData, lowestFile, data); 
+            //System.out.println(f);
+        }
+        //System.out.println(coldestFile);
+        return lowestFile;
+    }
+    
+    public double averageDataInFile (CSVParser parser, String data) {
+        double dataTotal = 0;
+        double numberOfData = 0;
+        for (CSVRecord record : parser) {
+            dataTotal = dataTotal + Double.parseDouble(record.get(data));
+            numberOfData++;
+        }
+        return dataTotal/numberOfData;
+    }
+    
+    public double averageDataWithHigh2ndDataInFile (CSVParser parser, String data, String data2, double value) {
+        double dataTotal = 0;
+        double numberOfData = 0;
+        for (CSVRecord record : parser) {
+            if (Double.parseDouble(record.get(data2)) > value) {
+            dataTotal = dataTotal + Double.parseDouble(record.get(data));
+            numberOfData++;
+        } 
+        }
+        if (numberOfData == 0) {
+            return 0;
+        }
+        return dataTotal/numberOfData;
+    }
+    
+    public void testAverageDataWithHigh2ndDataInFile() {
+        FileResource fr = new FileResource();
+        double averageTemp = averageDataWithHigh2ndDataInFile(fr.getCSVParser(), "TemperatureF", "Humidity", 80);
+        System.out.println("The average temperature for times when the humidity was over 80 was " + averageTemp + ".");
+    }
+    
+    public void testAverageTempInFile () {
+        FileResource fr = new FileResource();
+        double averageTemp = averageDataInFile(fr.getCSVParser(), "TemperatureF");
+        System.out.println("The average temperature was " + averageTemp + ".");
+    }
+    
+    public void testFileWithColdestTemperature() {
+        CSVRecord coldestFile = fileWithLowestData("TemperatureF");
+        System.out.println("The coldest temperature was " + coldestFile.get("TemperatureF") + " at " + coldestFile.get("DateUTC"));
+    }
+    
+    public void testColdestHourInFile() {
+        FileResource fr = new FileResource();
+        CSVRecord lowestTemp = lowestDataInFile(fr.getCSVParser(), "TemperatureF");
+        System.out.println("Coldest temp in file was " + lowestTemp.get("TemperatureF") + " at " + lowestTemp.get("DateUTC"));
+    }
+    
+    public void testFileWithLowestHumidity() {
+        CSVRecord lowestFile = fileWithLowestData("Humidity");
+        System.out.println("The lowest humidity was " + lowestFile.get("Humidity") + " at " + lowestFile.get("DateUTC"));
+    }
+    
+    public void testLowestHumidityInFile () {
+        FileResource fr = new FileResource();
+        CSVRecord lowestHumidity = lowestDataInFile(fr.getCSVParser(), "Humidity");
+        System.out.println("Lowest humidity in file was " + lowestHumidity.get("Humidity") + " at " + lowestHumidity.get("DateUTC"));
+    }
+    
+    
+}
